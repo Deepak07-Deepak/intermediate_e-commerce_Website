@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Checkout Portal</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); padding: 2rem 1rem; }
+        
+        .cart-wrapper { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .cart-wrapper { grid-template-columns: 1fr; } }
+
+        h1 { margin-bottom: 1.5rem; }
+        .back-link { display: inline-block; margin-bottom: 1rem; color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* Items Container */
+        .cart-items-section { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; }
+        .cart-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+        .cart-item:last-child { border-bottom: none; }
+        
+        .item-details { display: flex; align-items: center; gap: 1rem; }
+        .item-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
+        .item-title { font-weight: 600; font-size: 1.05rem; }
+        .item-price { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem; }
+
+        .qty-controls { display: flex; align-items: center; gap: 0.75rem; }
+        .qty-btn { width: 30px; height: 30px; border-radius: 5px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        .qty-btn:hover { background: var(--bg-light); }
+        .qty-val { font-weight: 600; min-width: 20px; text-align: center; }
+
+        .remove-btn { background: transparent; border: none; color: var(--danger); font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .remove-btn:hover { text-decoration: underline; }
+
+        /* Summary Sidebar */
+        .summary-sidebar { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; height: max-content; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-weight: 500; }
+        .total-row { border-top: 1px solid var(--border); padding-top: 1rem; font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
+        
+        /* Address Section Form */
+        .address-section { margin: 1.5rem 0; border-top: 1px solid var(--border); padding-top: 1rem; }
+        .address-section p { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .form-group { margin-bottom: 0.75rem; }
+        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; outline: none; }
+        .form-group input:focus { border-color: var(--primary); }
+        .error-msg { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; display: none; }
+
+        /* Payment Section Inside Sidebar */
+        .payment-methods { margin: 1.5rem 0; border-top: 1px solid var(--border); padding-top: 1rem; }
+        .payment-methods p { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-muted); text-transform: uppercase; }
+        .method-option { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; font-weight: 500; cursor: pointer; }
+
+        .checkout-btn { width: 100%; background: var(--success); color: white; border: none; padding: 0.8rem; border-radius: 6px; font-size: 1.05rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
+        .checkout-btn:hover { opacity: 0.9; }
+
+        .empty-msg { text-align: center; padding: 3rem 1rem; color: var(--text-muted); display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="cart-wrapper">
+        <div>
+            <a href="products.html" class="back-link">← Continue Shopping</a>
+            <h1>Your Shopping Cart</h1>
+            
+            <div class="cart-items-section">
+                <div id="cart-items-list">
+                    </div>
+                <div id="empty-cart" class="empty-msg">Your cart is currently empty.</div>
+            </div>
+        </div>
+
+        <div class="summary-sidebar">
+            <h2>Order Summary</h2>
+            <br>
+            <div class="summary-row"><span>Items Subtotal</span><span>₹<span id="subtotal-val">0</span></span></div>
+            <div class="summary-row"><span>Delivery Fee</span><span style="color: var(--success);">FREE</span></div>
+            <div class="summary-row total-row"><span>Grand Total</span><span>₹<span id="total-val">0</span></span></div>
+
+            <div class="address-section">
+                <p>Delivery Address *</p>
+                <div class="form-group">
+                    <input type="text" id="shipping-street" placeholder="Flat / House No. / Street / Area" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="shipping-city" placeholder="Town / City" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="shipping-pin" placeholder="6-Digit Pincode" maxlength="6" pattern="[0-9]{6}" required>
+                </div>
+                <div id="address-error" class="error-msg">Please fill out all address details accurately.</div>
+            </div>
+
+            <div class="payment-methods">
+                <p>Select Payment Method</p>
+                <label class="method-option"><input type="radio" name="pay-method" value="UPI" checked> UPI (GPay/PhonePe)</label>
+                <label class="method-option"><input type="radio" name="pay-method" value="Cards"> Credit / Debit Card</label>
+                <label class="method-option"><input type="radio" name="pay-method" value="COD"> Cash on Delivery (COD)</label>
+            </div>
+
+            <button class="checkout-btn" onclick="processOrderCheckout()">Place Order</button>
+        </div>
+    </div>
+
+    <script>
+        const itemsListContainer = document.getElementById('cart-items-list');
+        const emptyCartMsg = document.getElementById('empty-cart');
+        const subtotalVal = document.getElementById('subtotal-val');
+        const totalVal = document.getElementById('total-val');
+        const addressError = document.getElementById('address-error');
+
+        function loadCartDisplay() {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            itemsListContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                emptyCartMsg.style.display = 'block';
+                subtotalVal.textContent = '0';
+                totalVal.textContent = '0';
+                return;
+            }
+            
+            emptyCartMsg.style.display = 'none';
+            let grandTotal = 0;
+
+            cart.forEach(item => {
+                let itemCostValue = item.price * item.quantity;
+                grandTotal += itemCostValue;
+
+                const itemRow = document.createElement('div');
+                itemRow.className = 'cart-item';
+                itemRow.innerHTML = `
+                    <div class="item-details">
+                        <img src="${item.img}" alt="${item.title}" class="item-img">
+                        <div>
+                            <div class="item-title">${item.title}</div>
+                            <div class="item-price">₹${item.price.toLocaleString('en-IN')}</div>
+                        </div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="alterQuantity(${item.id}, -1)">-</button>
+                        <span class="qty-val">${item.quantity}</span>
+                        <button class="qty-btn" onclick="alterQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div>₹${itemCostValue.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" onclick="removeProductItem(${item.id})">Remove</button>
+                `;
+                itemsListContainer.appendChild(itemRow);
+            });
+
+            subtotalVal.textContent = grandTotal.toLocaleString('en-IN');
+            totalVal.textContent = grandTotal.toLocaleString('en-IN');
+        }
+
+        function alterQuantity(id, change) {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            let targetedItem = cart.find(item => item.id === id);
+
+            if (targetedItem) {
+                targetedItem.quantity += change;
+                if (targetedItem.quantity <= 0) {
+                    cart = cart.filter(item => item.id !== id);
+                }
+                localStorage.setItem('eshop_cart', JSON.stringify(cart));
+                loadCartDisplay();
+            }
+        }
+
+        function removeProductItem(id) {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            cart = cart.filter(item => item.id !== id);
+            localStorage.setItem('eshop_cart', JSON.stringify(cart));
+            loadCartDisplay();
+        }
+
+        // Process Checkout Order Execution, Form Validation, and Routing
+        function processOrderCheckout() {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            if(cart.length === 0) {
+                alert("Your shopping cart is currently empty!");
+                return;
+            }
+
+            // Capture Address Input Values
+            const street = document.getElementById('shipping-street').value.trim();
+            const city = document.getElementById('shipping-city').value.trim();
+            const pin = document.getElementById('shipping-pin').value.trim();
+
+            // Strict Validation Check
+            if (!street || !city || !pin || pin.length < 6) {
+                addressError.style.display = 'block';
+                document.getElementById('shipping-street').focus();
+                return;
+            } else {
+                addressError.style.display = 'none';
+            }
+
+            const chosenPayment = document.querySelector('input[name="pay-method"]:checked').value;
+            
+            if (chosenPayment === "COD") {
+                alert(`🎉 Order successfully placed via Cash on Delivery!\n\nShipping to: ${street}, ${city} - ${pin}.\nMoving you to Home page.`);
+            } else {
+                alert(`Securing connection...\nProcessing payment via ${chosenPayment}...\n\n🎉 Payment Successful! Order Placed.\nShipping to: ${street}, ${city} - ${pin}.\nMoving you to Home page.`);
+            }
+
+            // Flush cart data upon successful checkout completion
+            localStorage.removeItem('eshop_cart');
+            
+            // Redirect smoothly to your existing home page file
+            window.location.href = "html1.html";
+        }
+
+        // Initialize view display
+        loadCartDisplay();
+    </script>
+</body>
+</html>

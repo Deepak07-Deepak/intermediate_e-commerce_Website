@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Store - Discover Products (22 Items)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); padding: 0; }
+
+        /* --- NAVIGATION HEADER --- */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); text-decoration: none; }
+        .logo span { color: var(--primary); }
+        .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .view-cart-btn {
+            background: var(--primary);
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+        .view-cart-btn:hover { background: var(--primary-hover); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border); }
+
+        /* Controls Panel */
+        .controls { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .search-input, .filter-select, .sort-select { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; outline: none; }
+        .search-input { flex: 1; min-width: 200px; }
+
+        /* Products Grid */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem; }
+        .product-card { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        .badge { position: absolute; top: 10px; left: 10px; background: var(--text-dark); color: white; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: bold; border-radius: 4px; z-index: 2; text-transform: uppercase; }
+        .badge.hot { background: #ef4444; }
+
+        .product-image-wrapper { width: 100%; height: 200px; overflow: hidden; background: #e2e8f0; position: relative; cursor: pointer; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .product-card:hover .product-image { transform: scale(1.05); }
+
+        .quick-view-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem; opacity: 0; transition: opacity 0.2s ease; }
+        .product-image-wrapper:hover .quick-view-overlay { opacity: 1; }
+
+        .product-info { padding: 1rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-category { font-size: 0.75rem; text-transform: uppercase; color: var(--primary); font-weight: bold; margin-bottom: 0.25rem; }
+        .product-title { font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--text-dark); }
+        .rating-stars { color: var(--warning); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .product-price { font-size: 1.25rem; font-weight: bold; color: var(--text-dark); margin-top: auto; margin-bottom: 1rem; }
+
+        /* --- ANIMATED BUTTON EFFECT --- */
+        .add-to-cart-btn {
+            background-color: var(--primary); color: white; border: none; padding: 0.65rem; border-radius: 6px; text-align: center; font-weight: 600; cursor: pointer; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: background-color 0.25s, transform 0.1s;
+        }
+        .add-to-cart-btn:hover { background-color: var(--primary-hover); }
+        .add-to-cart-btn:active { transform: scale(0.97); }
+        
+        .btn-text { transition: transform 0.3s ease, opacity 0.2s ease; }
+        .btn-icon { position: absolute; transform: translateY(30px); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; font-size: 1rem; }
+
+        .add-to-cart-btn.added { background-color: var(--success) !important; }
+        .add-to-cart-btn.added .btn-text { transform: translateY(-30px); opacity: 0; }
+        .add-to-cart-btn.added .btn-icon { transform: translateY(0); opacity: 1; }
+
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted); font-size: 1.2rem; display: none; }
+
+        /* --- QUICK VIEW MODAL --- */
+        .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-mask.active { opacity: 1; pointer-events: all; }
+        .modal-body { background: white; padding: 2rem; max-width: 500px; width: 90%; border-radius: 8px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; border-radius: 6px; margin-bottom: 1rem; }
+        .modal-desc { color: var(--text-muted); font-size: 0.95rem; margin: 0.5rem 0 1.5rem; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo">TECH<span>STORE</span></a>
+        <ul class="nav-links">
+            <li><a href="html1.html">Home</a></li>
+            <li><a href="#" class="active">Products</a></li>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="contactus.html">Contact Us</a></li>
+            <li><a href="cart.html" class="view-cart-btn">Cart (<span id="nav-cart-count">0</span>)</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Discover Products</h1>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="search" class="search-input" placeholder="Search products...">
+            <select id="category-filter" class="filter-select">
+                <option value="all">All Categories</option>
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="home & kitchen">Home & Kitchen</option>
+                <option value="sports">Sports</option>
+            </select>
+            <select id="price-sort" class="sort-select">
+                <option value="default">Sort By</option>
+                <option value="low-high">Price: Low to High</option>
+                <option value="high-low">Price: High to Low</option>
+            </select>
+        </div>
+
+        <main id="products-container" class="products-grid">
+            
+            <div class="product-card" data-id="1" data-category="electronics" data-price="6999">
+                <div class="badge hot">Best Seller</div>
+                <div class="product-image-wrapper" onclick="openQuickView('Premium Wireless Headphones', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500', 'Immersive cinematic soundscapes equipped with extreme bass cancellation profiles.')">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=60" alt="Headphones" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Premium Wireless Headphones</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹6,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(1, 'Premium Wireless Headphones', 6999, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="2" data-category="electronics" data-price="3999">
+                <div class="product-image-wrapper" onclick="openQuickView('Minimalist Smartwatch', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500', 'Elegant everyday activity companion tracking heart rates.')">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=60" alt="Smartwatch" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Minimalist Smartwatch</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹3,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(2, 'Minimalist Smartwatch', 3999, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="3" data-category="electronics" data-price="5499">
+                <div class="product-image-wrapper" onclick="openQuickView('Pro Noise-Canceling Earbuds', 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500', 'Ultra compact design bringing clear acoustical clarity.')">
+                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&auto=format&fit=crop&q=60" alt="Earbuds" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Pro Noise-Canceling Earbuds</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹5,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(3, 'Pro Noise-Canceling Earbuds', 5499, 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="4" data-category="electronics" data-price="2499">
+                <div class="product-image-wrapper" onclick="openQuickView('Waterproof Bluetooth Speaker', 'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=500', 'Rugged chassis engineered to endure moisture.')">
+                    <img src="https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=400&auto=format&fit=crop&q=60" alt="Speaker" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Waterproof Bluetooth Speaker</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹2,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(4, 'Waterproof Bluetooth Speaker', 2499, 'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="5" data-category="electronics" data-price="1499">
+                <div class="product-image-wrapper" onclick="openQuickView('Mechanical Gaming Keyboard', 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=500', 'Tactile RGB backlit mechanical switches designed for speed.')">
+                    <img src="https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&auto=format&fit=crop&q=60" alt="Keyboard" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Mechanical Gaming Keyboard</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹1,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(5, 'Mechanical Gaming Keyboard', 1499, 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="6" data-category="electronics" data-price="999">
+                <div class="product-image-wrapper" onclick="openQuickView('Ergonomic Wireless Mouse', 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500', 'Precision optical mouse with comfortable side contours.')">
+                    <img src="https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400&auto=format&fit=crop&q=60" alt="Mouse" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title">Ergonomic Wireless Mouse</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(6, 'Ergonomic Wireless Mouse', 999, 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product-card" data-id="7" data-category="clothing" data-price="2499">
+                <div class="product-image-wrapper" onclick="openQuickView('Classic Denim Jacket', 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=500', 'Heavyweight classic style offering high styling resilience.')">
+                    <img src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=400&auto=format&fit=crop&q=60" alt="Jacket" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Classic Denim Jacket</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹2,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(7, 'Classic Denim Jacket', 2499, 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="8" data-category="clothing" data-price="1899">
+                <div class="badge">Trending</div>
+                <div class="product-image-wrapper" onclick="openQuickView('Sporty Lightweight Sneakers', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500', 'Breathable athletic mesh build with custom shock padding.')">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=60" alt="Sneakers" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Sporty Lightweight Sneakers</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹1,899</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(8, 'Sporty Lightweight Sneakers', 1899, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="9" data-category="clothing" data-price="1299">
+                <div class="product-image-wrapper" onclick="openQuickView('Casual Linen Button-Up', 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500', 'Light, breathable pure fabric perfect for casual weekends.')">
+                    <img src="https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400&auto=format&fit=crop&q=60" alt="Shirt" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Casual Linen Button-Up</h3>
+                    <div class="rating-stars">★★★☆☆</div>
+                    <div class="product-price">₹1,299</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(9, 'Casual Linen Button-Up', 1299, 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="10" data-category="clothing" data-price="4999">
+                <div class="product-image-wrapper" onclick="openQuickView('Vintage Moto Leather Jacket', 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500', 'Premium rugged faux-leather structured cut with zippers.')">
+                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&auto=format&fit=crop&q=60" alt="Leather" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Vintage Moto Leather Jacket</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹4,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(10, 'Vintage Moto Leather Jacket', 4999, 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="11" data-category="clothing" data-price="799">
+                <div class="product-image-wrapper" onclick="openQuickView('Essential White Tee', 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=500', '100% combed cotton jersey structured for simple comfort.')">
+                    <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400&auto=format&fit=crop&q=60" alt="T-Shirt" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Essential White Tee</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹799</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(11, 'Essential White Tee', 799, 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="12" data-category="clothing" data-price="1499">
+                <div class="product-image-wrapper" onclick="openQuickView('Cozy Knit Winter Sweater', 'https://images.unsplash.com/photo-1574164904299-3a102b110380?w=500', 'Thick woven winter yarn ideal for premium insulation.')">
+                    <img src="https://images.unsplash.com/photo-1574164904299-3a102b110380?w=400&auto=format&fit=crop&q=60" alt="Sweater" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Clothing</span>
+                    <h3 class="product-title">Cozy Knit Winter Sweater</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹1,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(12, 'Cozy Knit Winter Sweater', 1499, 'https://images.unsplash.com/photo-1574164904299-3a102b110380?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product-card" data-id="13" data-category="home & kitchen" data-price="1499">
+                <div class="product-image-wrapper" onclick="openQuickView('Modern Geometric Desk Lamp', 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500', 'Sleek metal build casting soft ambient light for deep focus.')">
+                    <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400&auto=format&fit=crop&q=60" alt="Lamp" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Home & Kitchen</span>
+                    <h3 class="product-title">Modern Geometric Desk Lamp</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹1,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(13, 'Modern Geometric Desk Lamp', 1499, 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="14" data-category="home & kitchen" data-price="8999">
+                <div class="product-image-wrapper" onclick="openQuickView('Minimalist Lounge Chair', 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=500', 'Ergonomic framing and thick cushions tailored for luxury lounge spaces.')">
+                    <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=400&auto=format&fit=crop&q=60" alt="Chair" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Home & Kitchen</span>
+                    <h3 class="product-title">Minimalist Lounge Chair</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹8,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(14, 'Minimalist Lounge Chair', 8999, 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="15" data-category="home & kitchen" data-price="3299">
+                <div class="product-image-wrapper" onclick="openQuickView('Cast Iron Skillet Set', 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=500', 'Pre-seasoned heavy iron pans assuring maximum heat retention values.')">
+                    <img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&auto=format&fit=crop&q=60" alt="Skillet" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Home & Kitchen</span>
+                    <h3 class="product-title">Cast Iron Skillet Set</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹3,299</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(15, 'Cast Iron Skillet Set', 3299, 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="16" data-category="home & kitchen" data-price="2499">
+                <div class="product-image-wrapper" onclick="openQuickView('Organic Cotton Sheets Set', 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=500', 'Ultra-soft 400-thread sheets facilitating continuous cooling loops.')">
+                    <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&auto=format&fit=crop&q=60" alt="Bedding" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Home & Kitchen</span>
+                    <h3 class="product-title">Organic Cotton Sheets Set</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹2,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(16, 'Organic Cotton Sheets Set', 2499, 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="17" data-category="home & kitchen" data-price="4500">
+                <div class="product-image-wrapper" onclick="openQuickView('High-Speed Blender', 'https://images.unsplash.com/photo-1532372320978-9b4d7a92b24d?w=500', '1200w professional motor base configured for easy ice crushing.')">
+                    <img src="https://images.unsplash.com/photo-1532372320978-9b4d7a92b24d?w=400&auto=format&fit=crop&q=60" alt="Blender" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Home & Kitchen</span>
+                    <h3 class="product-title">High-Speed Blender</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹4,500</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(17, 'High-Speed Blender', 4500, 'https://images.unsplash.com/photo-1532372320978-9b4d7a92b24d?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="product-card" data-id="18" data-category="sports" data-price="5999">
+                <div class="product-image-wrapper" onclick="openQuickView('Pro Running Shoes', 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500', 'Carbon foam layered shoes mitigating repetitive joint impacts.')">
+                    <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&auto=format&fit=crop&q=60" alt="Running" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Sports</span>
+                    <h3 class="product-title">Pro Running Shoes</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹5,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(18, 'Pro Running Shoes', 5999, 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="19" data-category="sports" data-price="1299">
+                <div class="product-image-wrapper" onclick="openQuickView('Non-Slip TPE Yoga Mat', 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500', '6mm eco-friendly cushioned mat engineered with custom grip tracking details.')">
+                    <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&auto=format&fit=crop&q=60" alt="Yoga" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Sports</span>
+                    <h3 class="product-title">Non-Slip TPE Yoga Mat</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹1,299</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(19, 'Non-Slip TPE Yoga Mat', 1299, 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="20" data-category="sports" data-price="7499">
+                <div class="product-image-wrapper" onclick="openQuickView('Adjustable Dumbbell Pair', 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500', 'Heavy dials allowing rapid selection parameters from 2kg up to 24kg.')">
+                    <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400&auto=format&fit=crop&q=60" alt="Weights" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Sports</span>
+                    <h3 class="product-title">Adjustable Dumbbell Pair</h3>
+                    <div class="rating-stars">★★★★★</div>
+                    <div class="product-price">₹7,499</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(20, 'Adjustable Dumbbell Pair', 7499, 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="21" data-category="sports" data-price="999">
+                <div class="product-image-wrapper" onclick="openQuickView('Insulated Flask Bottle', 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=500', 'Double-wall stainless steel body locking temp parameters for 24 hours.')">
+                    <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&auto=format&fit=crop&q=60" alt="Flask" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Sports</span>
+                    <h3 class="product-title">Insulated Flask Bottle</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(21, 'Insulated Flask Bottle', 999, 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-id="22" data-category="sports" data-price="2999">
+                <div class="product-image-wrapper" onclick="openQuickView('Waterproof Activity Tracker', 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=500', 'Slim profiles checking oxygen levels and daily workout telemetry indices.')">
+                    <img src="https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&auto=format&fit=crop&q=60" alt="Band" class="product-image">
+                    <div class="quick-view-overlay">Quick View</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Sports</span>
+                    <h3 class="product-title">Waterproof Activity Tracker</h3>
+                    <div class="rating-stars">★★★★☆</div>
+                    <div class="product-price">₹2,999</div>
+                    <button class="add-to-cart-btn" onclick="addToCartEngine(22, 'Waterproof Activity Tracker', 2999, 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=100', this)">
+                        <span class="btn-text">Add to Cart</span>
+                        <span class="btn-icon">Added! ✓</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="no-results" class="no-results">No products found matching your criteria.</div>
+        </main>
+    </div>
+
+    <div id="quickview-modal" class="modal-mask" onclick="closeQuickView(event)">
+        <div class="modal-body" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuickView(null)">&times;</button>
+            <img id="modal-img" src="" alt="Product view" class="modal-img">
+            <h2 id="modal-title">Product Title</h2>
+            <p id="modal-desc" class="modal-desc">Detailed descriptions go here.</p>
+        </div>
+    </div>
+
+    <script>
+        const productsContainer = document.getElementById('products-container');
+        const searchInput = document.getElementById('search');
+        const categoryFilter = document.getElementById('category-filter');
+        const priceSort = document.getElementById('price-sort');
+        const noResultsEl = document.getElementById('no-results');
+        const navCartCount = document.getElementById('nav-cart-count');
+
+        const modal = document.getElementById('quickview-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalImg = document.getElementById('modal-img');
+        const modalDesc = document.getElementById('modal-desc');
+
+        const allCards = Array.from(document.querySelectorAll('.product-card'));
+
+        function updateNavBadge() {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            let totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
+            navCartCount.textContent = totalQty;
+        }
+
+        function filterAndSortDOMProducts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedCategory = categoryFilter.value.toLowerCase();
+            const sortOrder = priceSort.value;
+
+            let visibleCards = allCards.filter(card => {
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const category = card.getAttribute('data-category');
+                const matchesSearch = !searchTerm || title.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+
+                card.style.display = (matchesSearch && matchesCategory) ? 'flex' : 'none';
+                return matchesSearch && matchesCategory;
+            });
+
+            noResultsEl.style.display = visibleCards.length === 0 ? 'block' : 'none';
+
+            if (sortOrder === 'low-high') {
+                visibleCards.sort((a, b) => parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price')));
+            } else if (sortOrder === 'high-low') {
+                visibleCards.sort((a, b) => parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price')));
+            }
+            visibleCards.forEach(card => productsContainer.appendChild(card));
+        }
+
+        function addToCartEngine(id, title, price, img, btn) {
+            let cart = JSON.parse(localStorage.getItem('eshop_cart')) || [];
+            let existingItem = cart.find(item => item.id === id);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, title, price, img, quantity: 1 });
+            }
+
+            localStorage.setItem('eshop_cart', JSON.stringify(cart));
+            updateNavBadge();
+
+            btn.classList.add('added');
+            setTimeout(() => btn.classList.remove('added'), 1200);
+        }
+
+        function openQuickView(title, imgUrl, descriptionText) {
+            modalTitle.textContent = title; modalImg.src = imgUrl; modalDesc.textContent = descriptionText;
+            modal.classList.add('active');
+        }
+        function closeQuickView() { modal.classList.remove('active'); }
+
+        searchInput.addEventListener('input', filterAndSortDOMProducts);
+        categoryFilter.addEventListener('change', filterAndSortDOMProducts);
+        priceSort.addEventListener('change', filterAndSortDOMProducts);
+        
+        updateNavBadge();
+    </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login & Registration</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:450px;
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.form-box{
+    display:none;
+    animation:slide 0.4s ease;
+}
+
+.form-box.active{
+    display:block;
+}
+
+@keyframes slide{
+    from{
+        opacity:0;
+        transform:translateX(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:12px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:15px;
+}
+
+.password-box{
+    position:relative;
+}
+
+.password-box span{
+    position:absolute;
+    right:15px;
+    top:13px;
+    cursor:pointer;
+    user-select:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#667eea;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#5564e0;
+}
+
+.link{
+    text-align:center;
+    margin-top:15px;
+}
+
+.link a{
+    color:#667eea;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.forgot{
+    text-align:right;
+    margin-bottom:15px;
+}
+
+.forgot a{
+    text-decoration:none;
+    color:#667eea;
+}
+
+#message{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.success{
+    color:green;
+}
+
+.error{
+    color:red;
+}
+
+.strength{
+    margin-top:-8px;
+    margin-bottom:10px;
+    font-size:13px;
+}
+
+.weak{
+    color:red;
+}
+
+.medium{
+    color:orange;
+}
+
+.strong{
+    color:green;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- REGISTER -->
+    <div class="form-box active" id="registerForm">
+
+        <h2>Create Account</h2>
+
+        <input type="text" id="firstName" placeholder="First Name">
+
+        <input type="text" id="middleName" placeholder="Middle Name (Optional)">
+
+        <input type="text" id="lastName" placeholder="Last Name">
+
+        <input type="email" id="regEmail" placeholder="Email Address">
+
+        <input type="text" id="mobile" placeholder="Mobile Number">
+
+        <div class="password-box">
+            <input type="password" id="regPassword" placeholder="Password">
+            <span onclick="togglePassword('regPassword')">👁️</span>
+        </div>
+
+        <div id="strengthText" class="strength"></div>
+
+        <div class="password-box">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password">
+            <span onclick="togglePassword('confirmPassword')">👁️</span>
+        </div>
+
+        <button onclick="registerUser()">Register</button>
+
+        <div class="link">
+            Already have an account?
+            <a href="#" onclick="showLogin()">Login</a>
+        </div>
+
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form-box" id="loginForm">
+
+        <h2>Login</h2>
+
+        <input type="email" id="loginEmail" placeholder="Email">
+
+        <div class="password-box">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <span onclick="togglePassword('loginPassword')">👁️</span>
+        </div>
+
+        <div class="forgot">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+        </div>
+
+        <button onclick="loginUser()">Login</button>
+
+        <div class="link">
+            Don't have an account?
+            <a href="#" onclick="showRegister()">Register</a>
+        </div>
+
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div class="form-box" id="forgotForm">
+
+        <h2>Reset Password</h2>
+
+        <input type="email" id="forgotEmail" placeholder="Registered Email">
+
+        <div class="password-box">
+            <input type="password" id="newPassword" placeholder="New Password">
+            <span onclick="togglePassword('newPassword')">👁️</span>
+        </div>
+
+        <button onclick="resetPassword()">Reset Password</button>
+
+        <div class="link">
+            <a href="#" onclick="showLogin()">Back To Login</a>
+        </div>
+
+    </div>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+
+function switchForm(id){
+
+    document.querySelectorAll('.form-box').forEach(form=>{
+        form.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+
+    document.getElementById("message").innerHTML="";
+}
+
+function showLogin(){
+    switchForm('loginForm');
+}
+
+
+function showRegister(){
+    switchForm('registerForm');
+}
+
+function showForgotPassword(){
+    switchForm('forgotForm');
+}
+
+function togglePassword(id){
+
+    const input=document.getElementById(id);
+
+    if(input.type==="password"){
+        input.type="text";
+    }else{
+        input.type="password";
+    }
+}
+
+function showMessage(text,type){
+
+    const msg=document.getElementById("message");
+
+    msg.innerHTML=text;
+    msg.className=type;
+}
+
+document.getElementById("regPassword").addEventListener("input",function(){
+
+    const pass=this.value;
+    const strength=document.getElementById("strengthText");
+
+    if(pass.length<6){
+        strength.innerHTML="Weak Password";
+        strength.className="strength weak";
+    }
+    else if(pass.length<10){
+        strength.innerHTML="Medium Password";
+        strength.className="strength medium";
+    }
+    else{
+        strength.innerHTML="Strong Password";
+        strength.className="strength strong";
+    }
+});
+
+function registerUser(){
+
+    const firstName=document.getElementById("firstName").value.trim();
+    const middleName=document.getElementById("middleName").value.trim();
+    const lastName=document.getElementById("lastName").value.trim();
+    const email=document.getElementById("regEmail").value.trim();
+    const mobile=document.getElementById("mobile").value.trim();
+    const password=document.getElementById("regPassword").value;
+    const confirmPassword=document.getElementById("confirmPassword").value;
+
+    if(!firstName || !lastName || !email || !mobile || !password){
+
+        showMessage("Please fill all required fields.","error");
+        return;
+    }
+
+    if(!/^[0-9]{10}$/.test(mobile)){
+
+        showMessage("Enter valid 10-digit mobile number.","error");
+        return;
+    }
+
+    if(password.length<8){
+
+        showMessage("Password must be at least 8 characters.","error");
+        return;
+    }
+
+    if(password!==confirmPassword){
+
+        showMessage("Passwords do not match.","error");
+        return;
+    }
+
+    let users=JSON.parse(localStorage.getItem("users")) || [];
+
+    const existingUser=users.find(user=>user.email===email);
+
+    if(existingUser){
+
+        showMessage("Email already registered.","error");
+        return;
+    }
+
+    users.push({
+        firstName,
+        middleName,
+        lastName,
+        email,
+        mobile,
+        password
+    });
+
+    localStorage.setItem("users",JSON.stringify(users));
+
+    showMessage("Registration Successful!","success");
+
+    setTimeout(()=>{
+        showLogin();
+    },1000);
+}
+
+function loginUser(){
+
+    const email=document.getElementById("loginEmail").value.trim();
+    const password=document.getElementById("loginPassword").value;
+
+    let users=JSON.parse(localStorage.getItem("users")) || [];
+
+    const user=users.find(user =>
+        user.email===email &&
+        user.password===password
+    );
+
+    if(user){
+
+        showMessage(
+            "Welcome " +
+            user.firstName +
+            " " +
+            user.lastName +
+            "!",
+            "success"
+        );
+
+        // Redirect to dashboard
+        // window.location.href="dashboard.html";
+
+    }else{
+
+        showMessage(
+            "Wrong Email or Password!",
+            "error"
+        );
+    }
+}
+
+function resetPassword(){
+
+    const email=document.getElementById("forgotEmail").value.trim();
+    const newPassword=document.getElementById("newPassword").value;
+
+    let users=JSON.parse(localStorage.getItem("users")) || [];
+
+    const index=users.findIndex(user=>user.email===email);
+
+    if(index===-1){
+
+        showMessage("Email not registered.","error");
+        return;
+    }
+
+    users[index].password=newPassword;
+
+    localStorage.setItem("users",JSON.stringify(users));
+
+    showMessage(
+        "Password changed successfully!",
+        "success"
+    );
+
+    setTimeout(()=>{
+        showLogin();
+    },1000);
+}
+
+</script>
+
+</body>
+</html>

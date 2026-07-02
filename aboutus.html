@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Premium About Us</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;scroll-behavior:smooth}
+body{background:#08111f;color:#fff;overflow-x:hidden}
+body:before,body:after{content:"";position:fixed;border-radius:50%;filter:blur(90px);z-index:-1}
+body:before{width:420px;height:420px;background:#6d5dfc55;left:-120px;top:-120px}
+body:after{width:380px;height:380px;background:#00d4ff44;right:-100px;bottom:-100px}
+nav{position:fixed;top:0;width:100%;display:flex;justify-content:space-between;padding:18px 8%;background:rgba(255,255,255,.06);backdrop-filter:blur(16px)}
+nav a{color:#fff;text-decoration:none;margin-left:24px}
+.hero{min-height:100vh;display:grid;grid-template-columns:1.2fr 1fr;align-items:center;padding:120px 8%;gap:40px}
+h1{font-size:64px;line-height:1.1}.grad{background:linear-gradient(90deg,#00d4ff,#8b5cf6,#ff8a00);-webkit-background-clip:text;color:transparent}
+p{color:#cbd5e1;line-height:1.8}
+.btn{display:inline-block;margin-top:24px;padding:16px 34px;border-radius:40px;background:linear-gradient(90deg,#00d4ff,#8b5cf6);text-decoration:none;color:#fff}
+.glass{background:rgba(255,255,255,.08);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.heroCard{height:460px;display:flex;align-items:center;justify-content:center;font-size:120px;animation:f 5s ease-in-out infinite}
+@keyframes f{50%{transform:translateY(-16px)}}
+section{padding:90px 8%}.title{text-align:center;font-size:42px;margin-bottom:14px}.sub{text-align:center;color:#aab;max-width:700px;margin:0 auto 45px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}.card{padding:28px;transition:.3s}.card:hover{transform:translateY(-8px)}
+.counter{font-size:42px;color:#7dd3fc;font-weight:700}
+.team img{width:90px;height:90px;border-radius:50%;display:block;margin:auto}
+.slide{display:none}.slide.active{display:block}
+.faq h4{cursor:pointer;margin-bottom:8px}.faq p{display:none}.faq.open p{display:block}
+footer{text-align:center;padding:40px;color:#9ca3af}
+@media(max-width:900px){.hero{grid-template-columns:1fr}h1{font-size:44px}}
+</style></head>
+<body>
+<nav><b>TechStore</b><div><a href="html1.html">Home</a><a href="aboutus.html">About</a><a href="products.html">Products</a><a href="contactus.html">Contact</a></div></nav>
+<div class="hero">
+<div><h1>Crafting <span class="grad">Premium Shopping</span> Experiences</h1><p>We combine beautiful design, secure technology, curated products, and exceptional customer service.</p><a class="btn" href="products.html">Explore</a></div>
+<div class="glass heroCard">🛍️</div></div>
+
+<section><div class="title">About Us</div><div class="sub">We're passionate about delivering an unforgettable shopping experience.</div>
+<div class="grid">
+<div class="glass card"><h3>Mission</h3><p>Deliver quality with speed and trust.</p></div>
+<div class="glass card"><h3>Vision</h3><p>Become the world's most loved online marketplace.</p></div>
+<div class="glass card"><h3>Values</h3><p>Innovation, integrity, customer happiness, sustainability.</p></div>
+</div></section>
+
+<section><div class="title">Achievements</div><div class="grid">
+<div class="glass card"><div class="counter" data-target="50000">0</div><p>Happy Customers</p></div>
+<div class="glass card"><div class="counter" data-target="1200">0</div><p>Products</p></div>
+<div class="glass card"><div class="counter" data-target="150">0</div><p>Brands</p></div>
+<div class="glass card"><div class="counter" data-target="99">0</div><p>Positive Reviews %</p></div>
+</div></section>
+
+
+
+<section><div class="title">Testimonials</div>
+<div class="glass card slide active">★★★★★ "Amazing products and support!"</div>
+<div class="glass card slide">★★★★★ "Fast shipping and premium quality."</div>
+<div class="glass card slide">★★★★★ "My favorite online store."</div>
+</section>
+
+<section><div class="title">FAQ</div>
+<div class="glass card faq"><h4>Do you offer returns?</h4><p>Yes, within 30 days.</p></div>
+<div class="glass card faq"><h4>How fast is shipping?</h4><p>Usually 2–5 business days.</p></div>
+</section>
+
+
+<script>
+document.querySelectorAll('.counter').forEach(c=>{let t=+c.dataset.target,v=0;let i=setInterval(()=>{v+=Math.ceil(t/100);if(v>=t){v=t;clearInterval(i)}c.textContent=v.toLocaleString()},20)});
+let s=document.querySelectorAll('.slide'),i=0;setInterval(()=>{s[i].classList.remove('active');i=(i+1)%s.length;s[i].classList.add('active')},3000);
+document.querySelectorAll('.faq').forEach(f=>f.querySelector('h4').onclick=()=>f.classList.toggle('open'));
+</script></body></html>
